@@ -1,6 +1,14 @@
 "use strict";
-const button = document.querySelector("button");
-button === null || button === void 0 ? void 0 : button.addEventListener("click", () => {
-    console.log("Clicked");
-});
+;
+class Person {
+    constructor(n) {
+        this.name = n;
+    }
+    greet(phrase) {
+        console.log(`${phrase} ${this.name}!`);
+    }
+}
+let person1;
+person1 = new Person("Andrew");
+person1.greet("What up");
 //# sourceMappingURL=app.js.map

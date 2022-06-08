@@ -1,3 +1,12 @@
+//interface describes the structure of an object.
+// you can use interfaces as a type. The variable  assigned that type must follow the interface definition of what the object should be.
+//although you can use interface and type interchangeably, they are not the same.
+// Union types can be stored in types, not interface
+// interface is clearer. when you define it as interface, you want to define the structure of an object with that. This is why interface is used to do this more than custom types. 
+// interface can be implemented in classes. This is why you often use these.
+// class Person implements Greetable
+// readonly to set something and never be able to change it. Only added to interface.
+
 // type AddFn = (a: number, b: number) => number;
 interface AddFn {
   (a: number, b: number): number;

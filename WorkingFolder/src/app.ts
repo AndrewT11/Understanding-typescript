@@ -1,197 +1,102 @@
-type Admin = {
-    name: string;
-    privileges: string[];
-};
+// These two are equivalent. Array is the generic type connected to another type.
 
-type Employee = {
-    name: string; 
-    startDate: Date;
+// const names: string[] = ["Andrew", "James"]
+// const names: Array<string> = ["Andrew", "James"]
+// advantage do defining the type of the array is typescript will know when you try to perform string methods on the variable. (such as .split(" ")
+
+// const promise: Promise<string> = new Promise((resolve, reject) => {
+//     setTimeout(() => {
+//         resolve('This is done');
+//     }, 2000);
+// })
+
+//we are doing this for better typescript support.
+
+// 95. CREATING GENERIC FUNCITONS
+
+function merge<T, U>(objA: T, objB: U) {
+    return  Object.assign(objA, objB)
 }
 
-//this is the intersection
-type ElevatedEmployee = Admin & Employee;
+// using generics allows TS to see that the function merge will get two different types of objects and the output will be an intersection of the two aprams passed in. So now we know that intersected data will be stored in mergedObj below.
+const mergedObj = merge({name: "Andrew"}, {age: 39})
 
-//Conversely, could have created interfaces instead of types, then
-// interface Employee { name: string; startDate: Date; }
-// interface Admin { name: string; privileges: string[]; }
-// interface ElevatedEmployee extends Admin, Employees {}
+console.log(mergedObj.age)
 
-const e1: ElevatedEmployee = {
-    name: 'Max',
-    privileges: ['create-server'],
-    startDate: new Date()
+// 96. Working with Constraints
+// - do this by extending your generic types. < T extends object, U extends object>
+// Now whatever is passed must be an object. This forces us to place an object as the second argument. If we do not have an object (say just the number), an error will show and TS will not compile the code.
+
+// 97. ANOTHER GENERIC FUNCTION
+
+interface Lengthy {
+    length: number;
 }
 
-type Combinable = string | number;
-type Numeric = number | boolean;
+function countAndDescribe<T extends Lengthy>(element: T): [T, string] {
+    let descriptionText = "Got no value.";
 
-type Universal = Combinable & Numeric;
-
-//////////////////////////////////////////////////////////////////
-// this is a type guard. Using primitive types as typeguard.
-// function add(a: Combinable, b: Combinable) {
-
-//     if (typeof a === 'string' || typeof b === 'string') {
-//         return a.toString() + b.toString();
-//     }
-//     return a + b;
-// }
-
-// using union type properties as a typeguard. This is like a "will print if available" guard because certain properties are found only in each type.
-type UnknownEmployee = Admin | Employee;
-
-function printEmployeeInformation(emp: UnknownEmployee) {
-    console.log("Employee Name: ", emp.name)
-    if("privileges" in emp) {
-        console.log("Employee Privileges: ", emp.privileges)
+    if(element.length === 1) {
+        descriptionText = "Got 1 elements."
+    } else if (element.length > 1) {
+        descriptionText = `Got ${element.length} elements.`
     }
-    if("startDate" in emp) {
-        console.log("Start Date: ", emp.startDate)
-    }
+
+    return [element, descriptionText]
 }
 
-printEmployeeInformation(e1);
+console.log(countAndDescribe("Hi there"));
+console.log(countAndDescribe(["Fox", "Tiger", "Mouse"]));
+console.log(countAndDescribe("1"));
 
-class Car {
-    drive() {
-        console.log("Driving a car...")
-    }
+// 98. KEY OF CONSTRAINT <U extends keyof T>
+
+function extractAndConvert<T extends object, U extends keyof T>(obj: T, key: U) {
+    return `Value: ${obj[key]}`;
 }
 
-class Truck {
-    drive() {
-        console.log("Driving a truck...")
+extractAndConvert({name: "Andrew"}, "name")
+
+// 99. Generic Classes
+
+class DataStorage<T extends string | number | boolean> {
+    private data: T[] = [];
+
+    addItem(item: T) {
+        this.data.push(item);
     }
-    loadCargo(amount: number) {
-        console.log("Loading cargo..." + amount)
+
+    removeItem(item: T) {
+        if(this.data.indexOf(item) === -1) {
+            return;
+        }
+        this.data.splice(this.data.indexOf(item), 1);
     }
-}
 
-type Vehicle = Car | Truck;
-
-const v1 = new Car();
-const v2 = new Truck();
-
-// using instance type as typeguard. We are using instance because the union type Vehicle above was created using two classes, which are instances.
-function useVehicle(vehicle: Vehicle) {
-    vehicle.drive();
-    if(vehicle instanceof Truck) {
-        vehicle.loadCargo(1000);
+    getItems() {
+        return [...this.data];
     }
 }
 
-useVehicle(v1);
-useVehicle(v2);
+const textStorage = new DataStorage<string>();
+textStorage.addItem("Andrew");
+textStorage.addItem("Manu");
+textStorage.removeItem("Manu");
+console.log(textStorage.getItems());
 
-// discriminated unions. Using switch to pick between the types.
-// create variable speed, then define it within the switch statement if type is chosen.
-interface Bird {
-    type: "bird";
-    flyingSpeed: number;
-}
+const numberStorage = new DataStorage<number>();
+numberStorage.addItem(1);
+numberStorage.addItem(2);
+numberStorage.removeItem(1);
+console.log(numberStorage.getItems());
 
-interface Horse {
-    type: 'horse';
-    runningSpeed: number;
-}
+//when we extend generic T on DataStorage to string, number, boolean, we cannot create an objStore instance off a DataStorage class.
+// const objectStorage = new DataStorage<object>();
+// const andrewObj = {name: "Andrew"}
 
-type Animal = Bird | Horse;
+// objectStorage.addItem(andrewObj)
+// objectStorage.addItem({ age: 39})
+// objectStorage.removeItem(andrewObj)
+// console.log(objectStorage.getItems());
 
-
-function moveAnimal(animal: Animal) {
-    let speed;
-    switch (animal.type) {
-        case 'bird':
-            speed = animal.flyingSpeed;
-            break;
-        case 'horse':
-            speed = animal.runningSpeed;
-    }
-    console.log(`The ${animal.type} is moving at ${speed} mph!!!`)
-}
-
-moveAnimal({type: 'bird', flyingSpeed: 25});
-moveAnimal({type: 'horse', runningSpeed: 30});
-
-/////////////////////////////////////////////////////////////////
-// Type Casting. You can add a "!" behind document.getElementById("user-input") to tell TS that the value is not null, but it will still throw an error with .value as value does not exist on type "HTMLElement" 
-
-// const userInputElement = document.getElementById("user-input")!;
-
-// Two types:
-// - <HTMLInputElement> before defining
-
-// const userInputElement = <HTMLInputElement>document.getElementById("user-input")!;
-
-// - as HTMLInputElement after defining the variable. 
-
-// const userInputElement = document.getElementById("user-input") as HTMLInputElement;
-
-// userInputElement.value = "Whatup doe!"
-
-//If you are not sure if there will be a value inside the HTML, validate. Use an if statement.
-
-const userInputElement = document.getElementById("user-input") 
-
-//if statement first takes care if there is anything there, and if we do have a userInputElement, .value error is taken care of with the "as HTMLInputElement" code
-if (userInputElement) {
-    (userInputElement as HTMLInputElement).value = "Hi There"
-}
-
-///////////////////////////////////////////////////////////////////
-// Index Properties. Create objects that are more flexible regarding the properties that they might hold
-// So Index Properties are useful when we don't know which property names we have or the amount of properties 
-
-interface ErrorContainer {
-    [prop: string]: string;
-}
-
-const errorBag: ErrorContainer = {
-    email: "Not a valid email",
-    username: "Not a valid username"
-}
-
-//////////////////////////////////////////////////////////////////
-// FUNCITON OVERLOAD. Feature that allows us to define multiple function signatures. We cna have multiple possible ways of calling a function with different parameteres.
-//Reuse code from earlier to drive home point.
-
-// These are the overloads. Stating if a and b are same type, then the return should be of the same type that was input as params
-function add (a: number, b: number): number;
-function add (a: string, b: string): string;
-function add (a: string, b: number): string;
-function add (a: number, b: string): string;
-
-function add(a: Combinable, b: Combinable) {
-
-    if (typeof a === 'string' || typeof b === 'string') {
-        return a.toString() + b.toString();
-    }
-    return a + b;
-}
-
-// const result = add(1, 5) 
-//problem here is result is string/number. We want it to know if it is a string or number so we can call methods onto it for particular string or number types
-
-const result = add("Andrew", "Tran")
-
-result.split(' ') // with this, we can't split result because TS doesn't know if result is a string or number
-
-////////////////////////////////////////////////////////////////
-// OPTIONAL CHAINING
-
-const fetchedUserData = {
-    id: 'u1',
-    name: 'Andrew',
-    job: { title: 'CEO', description: 'My own company'}
-}
-
-console.log(fetchedUserData?.job?.title);
-
-////////////////////////////////////////////////////////////////
-// NULLISH COALESCING (??) If value before ?? is null or undefined, it will turn to the second option. Given an empty string is not null or undefined, this example would return the empty string in a console.log
-
-const userInput = "";
-
-const storedData = userInput ?? 'DEFAULT';
-
-console.log(storedData)
+// 100. A FIRST SUMMARY

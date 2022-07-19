@@ -1,9 +1,12 @@
-// Drag & Drop Interfaces
+  // Drag & Drop Interfaces
+
+// ProjectItems are the items that are rendered and should be dragged from Active to Finished
 interface Draggable {
   dragStartHandler(event: DragEvent): void;
   dragEndHandler(event: DragEvent): void;
 }
 
+// ProjectLists should be the target of dragging from Active to Finished List box
 interface DragTarget {
   dragOverHandler(event: DragEvent): void;
   dropHandler(event: DragEvent): void;

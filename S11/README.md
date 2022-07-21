@@ -30,3 +30,25 @@ Webpack
 - Code bundles, less import required
 - optimized (minified) code, less code to download
 - more build steps can be added easily
+
+webpack.config.js - webpack automatically looks for and will tell webpack how to work with our project. We must configure webpack to work correctly.
+
+- uses JS and Node.js features
+- use node module exports syntax
+
+const path = require('path');
+
+module.exports = {
+entry: './src/app.ts',
+output: {
+filename: 'bundle.js',
+path: path.resolve(\_\_dirname, 'dist')
+}
+};
+
+- no need to npm i path as it is a core node module included with node.js install
+  Webpack will start at app.ts:
+
+- look at the imports in that file, then take a look at those import files and their imports, etc, etc. until it knows all your imports
+- go through file contents and complies them with help from ts-loader
+- Note: once you use webpack, all imports do not need .js file extension anymore because webpack automatically looks for .js

@@ -8,6 +8,6 @@
 // We will install types of third party libraries.
 // tells TS how libraries work and whats included in the package
 
-// npm install --save @types/lodash
+// npm install --save @types/lodash 
 
 // https://www.npmjs.com/package/@types/lodash
